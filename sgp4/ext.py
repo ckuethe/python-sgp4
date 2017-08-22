@@ -4,7 +4,8 @@
 from math import (acos, asinh, atan2, copysign, cos, fabs, fmod,
                   pi, sin, sinh, sqrt, tan)
 
-undefined = None
+undefined = float('NaN')
+tolerance = 1e-8
 
 """
 /* -----------------------------------------------------------------------------
@@ -118,13 +119,11 @@ def dot(x, y):
 
 def angle(vec1, vec2):
 
-     small     = 0.00000001;
-     undefined = 999999.1;
 
      magv1 = mag(vec1);
      magv2 = mag(vec2);
 
-     if magv1*magv2 > small*small:
+     if magv1*magv2 > tolerance*tolerance:
 
          temp= dot(vec1,vec2) / (magv1*magv2);
          if fabs(temp) > 1.0:
@@ -148,14 +147,15 @@ def angle(vec1, vec2):
 *
 *  revisions
 *    vallado     - fix small                                     24 sep 2002
+*    ckuethe     - change local small to global tolerance        21 aug 2017
 *
 *  inputs          description                    range / units
 *    ecc         - eccentricity                   0.0  to
 *    nu          - true anomaly                   -2pi to 2pi rad
 *
 *  outputs       :
-*    e0          - eccentric anomaly              0.0  to 2pi rad       153.02 °
-*    m           - mean anomaly                   0.0  to 2pi rad       151.7425 °
+*    eccentric_anomaly          - eccentric anomaly              0.0  to 2pi rad       153.02 °
+*    mean_anomaly           - mean anomaly                   0.0  to 2pi rad       151.7425 °
 *
 *  locals        :
 *    e1          - eccentric anomaly, next value  rad
@@ -174,50 +174,49 @@ def angle(vec1, vec2):
 def newtonnu(ecc, nu):
 
      #  ---------------------  implementation   ---------------------
-     e0= 999999.9;
+     eccentric_anomaly= 999999.9;
      m = 999999.9;
-     small = 0.00000001;
 
      #  --------------------------- circular ------------------------
-     if fabs(ecc) < small:
+     if fabs(ecc) < tolerance:
 
-         m = nu;
-         e0= nu;
+         mean_anomaly = nu;
+         eccentric_anomaly= nu;
 
      else:
          #  ---------------------- elliptical -----------------------
-         if ecc < 1.0-small:
+         if ecc < 1.0-tolerance:
 
              sine= ( sqrt( 1.0 -ecc*ecc ) * sin(nu) ) / ( 1.0 +ecc*cos(nu) );
              cose= ( ecc + cos(nu) ) / ( 1.0  + ecc*cos(nu) );
-             e0  = atan2( sine,cose );
-             m   = e0 - ecc*sin(e0);
+             eccentric_anomaly  = atan2( sine,cose );
+             mean_anomaly   = eccentric_anomaly - ecc*sin(eccentric_anomaly);
 
          else:
              #  -------------------- hyperbolic  --------------------
-             if ecc > 1.0 + small:
+             if ecc > 1.0 + tolerance:
 
                  if ecc > 1.0 and fabs(nu)+0.00001 < pi-acos(1.0 /ecc):
 
                      sine= ( sqrt( ecc*ecc-1.0  ) * sin(nu) ) / ( 1.0  + ecc*cos(nu) );
-                     e0  = asinh( sine );
-                     m   = ecc*sinh(e0) - e0;
+                     eccentric_anomaly  = asinh( sine );
+                     mean_anomaly   = ecc*sinh(eccentric_anomaly) - eccentric_anomaly;
 
              else:
                  #  ----------------- parabolic ---------------------
                  if fabs(nu) < 168.0*pi/180.0:
 
-                     e0= tan( nu*0.5  );
-                     m = e0 + (e0*e0*e0)/3.0;
+                     eccentric_anomaly= tan( nu*0.5  );
+                     mean_anomaly = eccentric_anomaly + (eccentric_anomaly*eccentric_anomaly*eccentric_anomaly)/3.0;
 
      if ecc < 1.0:
 
-         m = fmod( m,2.0 *pi );
-         if m < 0.0:
-             m = m + 2.0 *pi;
-         e0 = fmod( e0,2.0 *pi );
+         mean_anomaly = fmod( mean_anomaly,2.0 *pi );
+         if mean_anomaly < 0.0:
+             mean_anomaly = mean_anomaly + 2.0 *pi;
+         eccentric_anomaly = fmod( eccentric_anomaly,2.0 *pi );
 
-     return e0, m
+     return eccentric_anomaly, mean_anomaly
 
 
 """
@@ -286,15 +285,13 @@ def rv2coe(r, v, mu):
      ebar = [None, None, None]
 
      ORB_SHAPE_ELLIPSE = 1
-     ORB_SHAPE_CIRCLE = 0
+     ORB_SHAPE_CIRCLE = 0 # ELLIPSE is not set
      ORB_INCL_INCLINED = 2
-     ORB_INCL_EQUATORIAL = 0 # as in _INCLINED is not set
+     ORB_INCL_EQUATORIAL = 0 # INCLINED is not set
      typeorbit = ORB_SHAPE_CIRCLE + ORB_INCL_EQUATORIAL
 
      twopi  = 2.0 * pi;
      halfpi = 0.5 * pi;
-     small  = 0.00000001;
-     undefined = 999999.1;
      infinite  = 999999.9;
 
      #  -------------------------  implementation   -----------------
@@ -304,7 +301,7 @@ def rv2coe(r, v, mu):
      #  ------------------  find h n and e vectors   ----------------
      cross( r,v, hbar );
      magh = mag( hbar );
-     if magh > small:
+     if magh > tolerance:
 
          nbar[0]= -hbar[1];
          nbar[1]=  hbar[0];
@@ -318,7 +315,7 @@ def rv2coe(r, v, mu):
 
          #  ------------  find a e and semi-latus rectum   ----------
          sme= ( magv*magv*0.5  ) - ( mu /magr );
-         if fabs( sme ) > small:
+         if fabs( sme ) > tolerance:
              a= -mu  / (2.0 *sme);
          else:
              a= infinite;
@@ -331,10 +328,10 @@ def rv2coe(r, v, mu):
          #  --------  determine type of orbit for later use  --------
          #  ------ elliptical, parabolic, hyperbolic inclined -------
          typeorbit = ORB_SHAPE_ELLIPSE + ORB_INCL_INCLINED
-         if ecc < small:
+         if ecc < tolerance:
 
              #  ----------------  circular equatorial ---------------
-             if  incl < small or fabs(incl-pi) < small:
+             if  incl < tolerance or fabs(incl-pi) < tolerance:
                  typeorbit = ORB_SHAPE_CIRCLE + ORB_INCL_EQUATORIAL
              else:
                  #  --------------  circular inclined ---------------
@@ -343,11 +340,11 @@ def rv2coe(r, v, mu):
          else:
 
              #  - elliptical, parabolic, hyperbolic equatorial --
-             if incl < small or fabs(incl-pi) < small:
+             if incl < tolerance or fabs(incl-pi) < tolerance:
                  typeorbit = ORB_SHAPE_ELLIPSE + ORB_INCL_EQUATORIAL
 
          #  ----------  find longitude of ascending node ------------
-         if magn > small:
+         if magn > tolerance:
 
              temp= nbar[0] / magn;
              if fabs(temp) > 1.0:
@@ -391,7 +388,7 @@ def rv2coe(r, v, mu):
              arglat= undefined;
 
          #  -- find longitude of perigee - elliptical equatorial ----
-         if ecc > small and typeorbit == ORB_SHAPE_ELLIPSE + ORB_INCL_EQUATORIAL:
+         if ecc > tolerance and typeorbit == ORB_SHAPE_ELLIPSE + ORB_INCL_EQUATORIAL:
 
              temp= ebar[0]/ecc;
              if fabs(temp) > 1.0:
@@ -406,7 +403,7 @@ def rv2coe(r, v, mu):
              lonper= undefined;
 
          #  -------- find true longitude - circular equatorial ------
-         if magr > small and typeorbit == ORB_SHAPE_CIRCLE + ORB_INCL_EQUATORIAL:
+         if magr > tolerance and typeorbit == ORB_SHAPE_CIRCLE + ORB_INCL_EQUATORIAL:
 
              temp= r[0]/magr;
              if fabs(temp) > 1.0:
