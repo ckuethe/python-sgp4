@@ -1,20 +1,14 @@
 """The sgp4 procedures for analytical propagation of a satellite.
 
-I have made the rather unorthodox decision to leave as much of this C++
-code alone as possible: if a line of code would run without change in
-Python, then I refused to re-indent it or remove its terminal semicolon,
-so that in the future it will be easier to keep updating this file as
-the original author's C++ continues to improve.  Thus, 5-space
-indentation (!) prevails in this file.
+The decision has been taken to reformat this code, now that it's Python,
+as Python, using black (with default settings). The upstream C++ code does
+not change very often, and when it does the logic changes can be surfaced
+with a diff.
 
-I have even kept all of the C++ block comments (by turning them into
-Python string constants) to make this easier to navigate and maintain,
-as well as to make it more informative for people who encounter this
-code for the first time here in its Python form.
+| - Chris Kuethe
+|   PyBay 2018, San Francisco, California
+|   On a typically cool August day in 2018
 
-| - Brandon Rhodes
-|   Common Grounds Coffee House, Bluffton, Ohio
-|   On a very hot August day in 2012
 """
 
 try:
