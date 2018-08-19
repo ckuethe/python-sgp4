@@ -1353,7 +1353,7 @@ def _dspace(
 *    cosio       - cosine of inclination
 *    cosio2      - cosio squared
 *    eccsq       - eccentricity squared
-*    method      - flag for deep space                    'd', 'n'
+*    deepspace   - flag for deep space
 *    omeosq      - 1.0 - ecco * ecco
 *    posq        - semi-parameter squared
 *    rp          - radius of perigee
@@ -1382,7 +1382,7 @@ def _dspace(
 """
 
 
-def _initl(satn, whichconst, ecco, epoch, inclo, no, method, afspc_mode):
+def _initl(satn, whichconst, ecco, epoch, inclo, no, deepspace, afspc_mode):
 
     # sgp4fix use old way of finding gst
 
@@ -1414,7 +1414,7 @@ def _initl(satn, whichconst, ecco, epoch, inclo, no, method, afspc_mode):
     ainv = 1.0 / ao
     posq = po * po
     rp = ao * (1.0 - ecco)
-    method = "n"
+    deepspace = False
 
     #  sgp4fix modern approach to finding sidereal time
     if afspc_mode:
@@ -1438,7 +1438,7 @@ def _initl(satn, whichconst, ecco, epoch, inclo, no, method, afspc_mode):
 
     return (
         no,
-        method,
+        deepspace,
         ainv,
         ao,
         con41,
@@ -1565,7 +1565,7 @@ def sgp4init(
 
     #  ----------- set all near earth variables to zero ------------
     satrec.isimp = 0
-    satrec.method = "n"
+    satrec.deepspace = False
     satrec.aycof = 0.0
     satrec.con41 = 0.0
     satrec.cc1 = 0.0
@@ -1681,7 +1681,7 @@ def sgp4init(
 
     (
         satrec.no,
-        method,
+        deepspace,
         ainv,
         ao,
         satrec.con41,
@@ -1702,7 +1702,7 @@ def sgp4init(
         epoch,
         satrec.inclo,
         satrec.no,
-        satrec.method,
+        satrec.deepspace,
         satrec.afspc_mode,
     )
     satrec.error = 0
@@ -1833,7 +1833,7 @@ def sgp4init(
         #  --------------- deep space initialization -------------
         if 2 * pi / satrec.no >= 225.0:
 
-            satrec.method = "d"
+            satrec.deepspace = True
             satrec.isimp = 1
             tc = 0.0
             inclm = satrec.inclo
@@ -2263,7 +2263,7 @@ def sgp4(satrec, tsince, whichconst=None):
     nm = satrec.no
     em = satrec.ecco
     inclm = satrec.inclo
-    if satrec.method == "d":
+    if satrec.deepspace:
 
         tc = satrec.t
         (atime, em, argpm, inclm, xli, mm, xni, nodem, dndt, nm) = _dspace(
@@ -2352,7 +2352,7 @@ def sgp4(satrec, tsince, whichconst=None):
     mp = mm
     sinip = sinim
     cosip = cosim
-    if satrec.method == "d":
+    if satrec.deepspace:
 
         ep, xincp, nodep, argpp, mp = _dpper(
             satrec, satrec.inclo, "n", ep, xincp, nodep, argpp, mp, satrec.afspc_mode
@@ -2374,7 +2374,7 @@ def sgp4(satrec, tsince, whichconst=None):
             return false, false
 
     #  -------------------- long period periodics ------------------
-    if satrec.method == "d":
+    if satrec.deepspace:
 
         sinip = sin(xincp)
         cosip = cos(xincp)
@@ -2437,7 +2437,7 @@ def sgp4(satrec, tsince, whichconst=None):
         temp2 = temp1 * temp
 
         #  -------------- update for short period periodics ------------
-        if satrec.method == "d":
+        if satrec.deepspace:
 
             cosisq = cosip * cosip
             satrec.con41 = 3.0 * cosisq - 1.0
