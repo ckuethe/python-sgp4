@@ -3,7 +3,8 @@
 
 from math import acos, asinh, atan2, copysign, cos, fabs, fmod, pi, sin, sinh, sqrt, tan
 
-undefined = None
+undefined = float("NaN")
+tolerance = 1e-8
 
 """
 /* -----------------------------------------------------------------------------
@@ -124,13 +125,10 @@ def dot(x, y):
 
 def angle(vec1, vec2):
 
-    small = 0.00000001
-    undefined = 999999.1
-
     magv1 = mag(vec1)
     magv2 = mag(vec2)
 
-    if magv1 * magv2 > small * small:
+    if magv1 * magv2 > tolerance * tolerance:
 
         temp = dot(vec1, vec2) / (magv1 * magv2)
         if fabs(temp) > 1.0:
@@ -184,17 +182,16 @@ def newtonnu(ecc, nu):
     #  ---------------------  implementation   ---------------------
     e0 = 999999.9
     m = 999999.9
-    small = 0.00000001
 
     #  --------------------------- circular ------------------------
-    if fabs(ecc) < small:
+    if fabs(ecc) < tolerance:
 
         m = nu
         e0 = nu
 
     else:
         #  ---------------------- elliptical -----------------------
-        if ecc < 1.0 - small:
+        if ecc < 1.0 - tolerance:
 
             sine = (sqrt(1.0 - ecc * ecc) * sin(nu)) / (1.0 + ecc * cos(nu))
             cose = (ecc + cos(nu)) / (1.0 + ecc * cos(nu))
@@ -203,7 +200,7 @@ def newtonnu(ecc, nu):
 
         else:
             #  -------------------- hyperbolic  --------------------
-            if ecc > 1.0 + small:
+            if ecc > 1.0 + tolerance:
 
                 if ecc > 1.0 and fabs(nu) + 0.00001 < pi - acos(1.0 / ecc):
 
@@ -301,8 +298,6 @@ def rv2coe(r, v, mu):
     typeorbit = ORB_SHAPE_SIMPLE
     twopi = 2.0 * pi
     halfpi = 0.5 * pi
-    small = 0.00000001
-    undefined = 999999.1
     infinite = 999999.9
 
     #  -------------------------  implementation   -----------------
@@ -312,7 +307,7 @@ def rv2coe(r, v, mu):
     #  ------------------  find h n and e vectors   ----------------
     cross(r, v, hbar)
     magh = mag(hbar)
-    if magh > small:
+    if magh > tolerance:
 
         nbar[0] = -hbar[1]
         nbar[1] = hbar[0]
@@ -326,7 +321,7 @@ def rv2coe(r, v, mu):
 
         #  ------------  find a e and semi-latus rectum   ----------
         sme = (magv * magv * 0.5) - (mu / magr)
-        if fabs(sme) > small:
+        if fabs(sme) > tolerance:
             a = -mu / (2.0 * sme)
         else:
             a = infinite
@@ -339,10 +334,10 @@ def rv2coe(r, v, mu):
         #  --------  determine type of orbit for later use  --------
         #  ------ elliptical, parabolic, hyperbolic inclined -------
         typeorbit = ORB_SHAPE_ELLIPTICAL + ORB_SHAPE_INCLINED
-        if ecc < small:
+        if ecc < tolerance:
 
             #  ----------------  circular equatorial ---------------
-            if incl < small or fabs(incl - pi) < small:
+            if incl < tolerance or fabs(incl - pi) < tolerance:
                 typeorbit = ORB_SHAPE_SIMPLE
             else:
                 #  --------------  circular inclined ---------------
@@ -351,11 +346,11 @@ def rv2coe(r, v, mu):
         else:
 
             #  - elliptical, parabolic, hyperbolic equatorial --
-            if incl < small or fabs(incl - pi) < small:
+            if incl < tolerance or fabs(incl - pi) < tolerance:
                 typeorbit = ORB_SHAPE_ELLIPTICAL
 
         #  ----------  find longitude of ascending node ------------
-        if magn > small:
+        if magn > tolerance:
 
             temp = nbar[0] / magn
             if fabs(temp) > 1.0:
@@ -399,7 +394,7 @@ def rv2coe(r, v, mu):
             arglat = undefined
 
         #  -- find longitude of perigee - elliptical equatorial ----
-        if ecc > small and typeorbit == ORB_SHAPE_ELLIPTICAL:
+        if ecc > tolerance and typeorbit == ORB_SHAPE_ELLIPTICAL:
 
             temp = ebar[0] / ecc
             if fabs(temp) > 1.0:
@@ -414,7 +409,7 @@ def rv2coe(r, v, mu):
             lonper = undefined
 
         #  -------- find true longitude - circular equatorial ------
-        if magr > small and typeorbit == ORB_SHAPE_SIMPLE:
+        if magr > tolerance and typeorbit == ORB_SHAPE_SIMPLE:
 
             temp = r[0] / magr
             if fabs(temp) > 1.0:
