@@ -167,7 +167,7 @@ twopi = 2.0 * pi
 """
 
 
-def _dpper(satrec, inclo, init, ep, inclp, nodep, argpp, mp, afspc_mode):
+def _dpper(satrec, inclo, initialized, ep, inclp, nodep, argpp, mp, afspc_mode):
 
     # Copy satellite attributes into local variables for convenience
     # and symmetry in writing formulae.
@@ -214,7 +214,7 @@ def _dpper(satrec, inclo, init, ep, inclp, nodep, argpp, mp, afspc_mode):
     #  --------------- calculate time varying periodics -----------
     zm = zmos + zns * t
     # be sure that the initial call has time set to zero
-    if init == "y":
+    if initialized:
         zm = zmos
     zf = zm + 2.0 * zes * sin(zm)
     sinzf = sin(zf)
@@ -226,7 +226,7 @@ def _dpper(satrec, inclo, init, ep, inclp, nodep, argpp, mp, afspc_mode):
     sghs = sgh2 * f2 + sgh3 * f3 + sgh4 * sinzf
     shs = sh2 * f2 + sh3 * f3
     zm = zmol + znl * t
-    if init == "y":
+    if initialized:
         zm = zmol
     zf = zm + 2.0 * zel * sin(zm)
     sinzf = sin(zf)
@@ -243,7 +243,7 @@ def _dpper(satrec, inclo, init, ep, inclp, nodep, argpp, mp, afspc_mode):
     pgh = sghs + sghl
     ph = shs + shll
 
-    if init == "n":
+    if not initialized:
 
         pe = pe - peo
         pinc = pinc - pinco
@@ -1676,7 +1676,7 @@ def sgp4init(
     qzms2t = qzms2ttemp * qzms2ttemp * qzms2ttemp * qzms2ttemp
     x2o3 = 2.0 / 3.0
 
-    satrec.init = "y"
+    satrec.initialized = True
     satrec.t = 0.0
 
     (
@@ -1963,7 +1963,7 @@ def sgp4init(
             (satrec.ecco, satrec.inclo, satrec.nodeo, satrec.argpo, satrec.mo) = _dpper(
                 satrec,
                 inclm,
-                satrec.init,
+                satrec.initialized,
                 satrec.ecco,
                 satrec.inclo,
                 satrec.nodeo,
@@ -2109,7 +2109,7 @@ def sgp4init(
      """
     sgp4(satrec, 0.0)
 
-    satrec.init = "n"
+    satrec.initialized = False
 
     # sgp4fix return boolean. satrec.error contains any error codes
     return true
@@ -2355,7 +2355,7 @@ def sgp4(satrec, tsince, whichconst=None):
     if satrec.deepspace:
 
         ep, xincp, nodep, argpp, mp = _dpper(
-            satrec, satrec.inclo, "n", ep, xincp, nodep, argpp, mp, satrec.afspc_mode
+            satrec, satrec.inclo, False, ep, xincp, nodep, argpp, mp, satrec.afspc_mode
         )
         if xincp < 0.0:
 
