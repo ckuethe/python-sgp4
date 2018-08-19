@@ -274,7 +274,7 @@ def newtonnu(ecc, nu):
 *    e           - eccentric, parabolic,
 *                  hyperbolic anomaly             rad
 *    temp        - temporary variable
-*    typeorbit   - type of orbit                  ee, ei, ce, ci
+*    typeorbit   - type of orbit
 *
 *  coupling      :
 *    mag         - magnitude of a vector
@@ -293,8 +293,12 @@ def rv2coe(r, v, mu):
     hbar = [None, None, None]
     nbar = [None, None, None]
     ebar = [None, None, None]
-    typeorbit = [None, None, None]
 
+    ORB_SHAPE_SIMPLE = 0  # circular and not inclined
+    ORB_SHAPE_ELLIPTICAL = 1
+    ORB_SHAPE_INCLINED = 2
+
+    typeorbit = ORB_SHAPE_SIMPLE
     twopi = 2.0 * pi
     halfpi = 0.5 * pi
     small = 0.00000001
@@ -334,21 +338,21 @@ def rv2coe(r, v, mu):
 
         #  --------  determine type of orbit for later use  --------
         #  ------ elliptical, parabolic, hyperbolic inclined -------
-        typeorbit = "ei"
+        typeorbit = ORB_SHAPE_ELLIPTICAL + ORB_SHAPE_INCLINED
         if ecc < small:
 
             #  ----------------  circular equatorial ---------------
             if incl < small or fabs(incl - pi) < small:
-                typeorbit = "ce"
+                typeorbit = ORB_SHAPE_SIMPLE
             else:
                 #  --------------  circular inclined ---------------
-                typeorbit = "ci"
+                typeorbit = ORB_SHAPE_INCLINED
 
         else:
 
             #  - elliptical, parabolic, hyperbolic equatorial --
             if incl < small or fabs(incl - pi) < small:
-                typeorbit = "ee"
+                typeorbit = ORB_SHAPE_ELLIPTICAL
 
         #  ----------  find longitude of ascending node ------------
         if magn > small:
@@ -364,7 +368,7 @@ def rv2coe(r, v, mu):
             omega = undefined
 
         #  ---------------- find argument of perigee ---------------
-        if typeorbit == "ei":
+        if typeorbit == ORB_SHAPE_ELLIPTICAL + ORB_SHAPE_INCLINED:
 
             argp = angle(nbar, ebar)
             if ebar[2] < 0.0:
@@ -374,7 +378,7 @@ def rv2coe(r, v, mu):
             argp = undefined
 
         #  ------------  find true anomaly at epoch    -------------
-        if typeorbit[0] == "e":
+        if typeorbit & ORB_SHAPE_ELLIPTICAL:
 
             nu = angle(ebar, r)
             if rdotv < 0.0:
@@ -384,7 +388,7 @@ def rv2coe(r, v, mu):
             nu = undefined
 
         #  ----  find argument of latitude - circular inclined -----
-        if typeorbit == "ci":
+        if typeorbit == ORB_SHAPE_INCLINED:
 
             arglat = angle(nbar, r)
             if r[2] < 0.0:
@@ -395,7 +399,7 @@ def rv2coe(r, v, mu):
             arglat = undefined
 
         #  -- find longitude of perigee - elliptical equatorial ----
-        if ecc > small and typeorbit == "ee":
+        if ecc > small and typeorbit == ORB_SHAPE_ELLIPTICAL:
 
             temp = ebar[0] / ecc
             if fabs(temp) > 1.0:
@@ -410,7 +414,7 @@ def rv2coe(r, v, mu):
             lonper = undefined
 
         #  -------- find true longitude - circular equatorial ------
-        if magr > small and typeorbit == "ce":
+        if magr > small and typeorbit == ORB_SHAPE_SIMPLE:
 
             temp = r[0] / magr
             if fabs(temp) > 1.0:
@@ -426,7 +430,7 @@ def rv2coe(r, v, mu):
             truelon = undefined
 
         #  ------------ find mean anomaly for all orbits -----------
-        if typeorbit[0] == "e":
+        if typeorbit & ORB_SHAPE_ELLIPTICAL:
             e, m = newtonnu(ecc, nu)
 
     else:
