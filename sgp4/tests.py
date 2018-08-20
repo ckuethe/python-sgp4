@@ -8,6 +8,7 @@ except:
 import os
 import re
 import sys
+from time import time
 from doctest import DocTestSuite, ELLIPSIS
 from math import pi, isnan
 
@@ -22,6 +23,22 @@ rad = 180.0 / pi
 
 
 class Tests(TestCase):
+    def test_jit_works(self):
+        # run a simple check to indiate whether acceleration is working
+        whichconst = wgs72
+        lines = (
+            # Molniya 1-91
+            "1 25485U 98054A   18120.76632403  .00001938 -56318-6  24013-3 0  9997",
+            "2 25485  62.0797  64.7087 7521039 277.1005  31.4481  2.01278783143500",
+        )
+        satrec = io.twoline2rv(lines[0], lines[1], whichconst)
+        r, v = sgp4(satrec, 0.0)  # warm the jit cache
+        t = time()
+        r, v = sgp4(satrec, 5 * 365 * 86400)
+        t = time() - t
+        if t > 1.0:
+            print("WARNING: poor jit acceleration; elapsed {:.1f}ms".format(t * 1000))
+
     def test_tle_verify(self):
         # Check whether a test run produces the output in tcppver.out
 
