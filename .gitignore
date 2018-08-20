@@ -4,3 +4,4 @@
 /MANIFEST
 /.coverage
 /htmlcov/
+__pycache__
