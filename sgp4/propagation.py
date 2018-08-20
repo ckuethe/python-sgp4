@@ -162,43 +162,95 @@ twopi = 2.0 * pi
 
 
 def _dpper(satrec, inclo, initialized, ep, inclp, nodep, argpp, mp, afspc_mode):
+    # this nonsense exists to preserve the previous _dpper interface while
+    # making life easy for numba which only sees just simple types
+    return __dpper_inner(
+        satrec.e3,
+        satrec.ee2,
+        satrec.peo,
+        satrec.pgho,
+        satrec.pho,
+        satrec.pinco,
+        satrec.plo,
+        satrec.se2,
+        satrec.se3,
+        satrec.sgh2,
+        satrec.sgh3,
+        satrec.sgh4,
+        satrec.sh2,
+        satrec.sh3,
+        satrec.si2,
+        satrec.si3,
+        satrec.sl2,
+        satrec.sl3,
+        satrec.sl4,
+        satrec.t,
+        satrec.xgh2,
+        satrec.xgh3,
+        satrec.xgh4,
+        satrec.xh2,
+        satrec.xh3,
+        satrec.xi2,
+        satrec.xi3,
+        satrec.xl2,
+        satrec.xl3,
+        satrec.xl4,
+        satrec.zmol,
+        satrec.zmos,
+        inclo,
+        initialized,
+        ep,
+        inclp,
+        nodep,
+        argpp,
+        mp,
+        afspc_mode,
+    )
 
-    # Copy satellite attributes into local variables for convenience
-    # and symmetry in writing formulae.
 
-    e3 = satrec.e3
-    ee2 = satrec.ee2
-    peo = satrec.peo
-    pgho = satrec.pgho
-    pho = satrec.pho
-    pinco = satrec.pinco
-    plo = satrec.plo
-    se2 = satrec.se2
-    se3 = satrec.se3
-    sgh2 = satrec.sgh2
-    sgh3 = satrec.sgh3
-    sgh4 = satrec.sgh4
-    sh2 = satrec.sh2
-    sh3 = satrec.sh3
-    si2 = satrec.si2
-    si3 = satrec.si3
-    sl2 = satrec.sl2
-    sl3 = satrec.sl3
-    sl4 = satrec.sl4
-    t = satrec.t
-    xgh2 = satrec.xgh2
-    xgh3 = satrec.xgh3
-    xgh4 = satrec.xgh4
-    xh2 = satrec.xh2
-    xh3 = satrec.xh3
-    xi2 = satrec.xi2
-    xi3 = satrec.xi3
-    xl2 = satrec.xl2
-    xl3 = satrec.xl3
-    xl4 = satrec.xl4
-    zmol = satrec.zmol
-    zmos = satrec.zmos
-
+@jit(cache=True, nopython=True)
+def __dpper_inner(
+    e3,
+    ee2,
+    peo,
+    pgho,
+    pho,
+    pinco,
+    plo,
+    se2,
+    se3,
+    sgh2,
+    sgh3,
+    sgh4,
+    sh2,
+    sh3,
+    si2,
+    si3,
+    sl2,
+    sl3,
+    sl4,
+    t,
+    xgh2,
+    xgh3,
+    xgh4,
+    xh2,
+    xh3,
+    xi2,
+    xi3,
+    xl2,
+    xl3,
+    xl4,
+    zmol,
+    zmos,
+    inclo,
+    initialized,
+    ep,
+    inclp,
+    nodep,
+    argpp,
+    mp,
+    afspc_mode,
+):
     #  ---------------------- constants -----------------------------
     zns = 1.19459e-5
     zes = 0.01675
@@ -374,6 +426,7 @@ def _dpper(satrec, inclo, initialized, ep, inclp, nodep, argpp, mp, afspc_mode):
 """
 
 
+@jit(cache=True, nopython=True)
 def _dscom(
     epoch,
     ep,
@@ -748,6 +801,7 @@ def _dscom(
 """
 
 
+@jit(cache=True, nopython=True)
 def _dsinit(
     whichconst,
     cosim,
@@ -1133,8 +1187,7 @@ def _dsinit(
 """
 
 
-@jit(cache=True)
-# @jit
+@jit(cache=True, nopython=True)
 def _dspace(
     irez,
     d2201,
@@ -2199,8 +2252,6 @@ def sgp4init(
 """
 
 
-@jit(cache=True)
-# @jit
 def sgp4(satrec, tsince, whichconst=None):
 
     mrt = 0.0
