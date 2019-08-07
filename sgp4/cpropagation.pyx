@@ -150,62 +150,69 @@ cdef double x2o3   = 2.0 / 3.0;
 
 cpdef _dpper(satrec, double inclo, char init, double ep, double inclp, double nodep, double argpp, double mp, char afspc_mode):
 
+     cdef double e3, ee2, peo, pgho, pho, pinco, plo, se2, se3, sgh2, sgh3, sgh4
+     cdef double sh2, sh3, si2, si3, sl2, sl3, sl4, t, xgh2, xgh3, xgh4, zm, zel
+     cdef double xh2, xh3, xi2, xi3, xl2, xl3, xl4, zmol, zmos, zns, zes, znl
+
+     cdef double sel, sil, sll, sghl, shll, pe, pinc, pl, pgh, ph
+     cdef double zf, sinzf, f2, f3, ses, sis, sls, sghs, shs
+
      # Copy satellite attributes into local variables for convenience
      # and symmetry in writing formulae.
 
-     cdef double e3 = satrec.e3
-     cdef double ee2 = satrec.ee2
-     cdef double peo = satrec.peo
-     cdef double pgho = satrec.pgho
-     cdef double pho = satrec.pho
-     cdef double pinco = satrec.pinco
-     cdef double plo = satrec.plo
-     cdef double se2 = satrec.se2
-     cdef double se3 = satrec.se3
-     cdef double sgh2 = satrec.sgh2
-     cdef double sgh3 = satrec.sgh3
-     cdef double sgh4 = satrec.sgh4
-     cdef double sh2 = satrec.sh2
-     cdef double sh3 = satrec.sh3
-     cdef double si2 = satrec.si2
-     cdef double si3 = satrec.si3
-     cdef double sl2 = satrec.sl2
-     cdef double sl3 = satrec.sl3
-     cdef double sl4 = satrec.sl4
-     cdef double t = satrec.t
-     cdef double xgh2 = satrec.xgh2
-     cdef double xgh3 = satrec.xgh3
-     cdef double xgh4 = satrec.xgh4
-     cdef double xh2 = satrec.xh2
-     cdef double xh3 = satrec.xh3
-     cdef double xi2 = satrec.xi2
-     cdef double xi3 = satrec.xi3
-     cdef double xl2 = satrec.xl2
-     cdef double xl3 = satrec.xl3
-     cdef double xl4 = satrec.xl4
-     cdef double zmol = satrec.zmol
-     cdef double zmos = satrec.zmos
+     e3 = satrec.e3
+     ee2 = satrec.ee2
+     peo = satrec.peo
+     pgho = satrec.pgho
+     pho = satrec.pho
+     pinco = satrec.pinco
+     plo = satrec.plo
+     se2 = satrec.se2
+     se3 = satrec.se3
+     sgh2 = satrec.sgh2
+     sgh3 = satrec.sgh3
+     sgh4 = satrec.sgh4
+     sh2 = satrec.sh2
+     sh3 = satrec.sh3
+     si2 = satrec.si2
+     si3 = satrec.si3
+     sl2 = satrec.sl2
+     sl3 = satrec.sl3
+     sl4 = satrec.sl4
+     t = satrec.t
+     xgh2 = satrec.xgh2
+     xgh3 = satrec.xgh3
+     xgh4 = satrec.xgh4
+     xh2 = satrec.xh2
+     xh3 = satrec.xh3
+     xi2 = satrec.xi2
+     xi3 = satrec.xi3
+     xl2 = satrec.xl2
+     xl3 = satrec.xl3
+     xl4 = satrec.xl4
+     zmol = satrec.zmol
+     zmos = satrec.zmos
 
      #  ---------------------- constants -----------------------------
-     cdef double zns   = 1.19459e-5;
-     cdef double zes   = 0.01675;
-     cdef double znl   = 1.5835218e-4;
-     cdef double zel   = 0.05490;
+     zns   = 1.19459e-5;
+     zes   = 0.01675;
+     znl   = 1.5835218e-4;
+     zel   = 0.05490;
 
      #  --------------- calculate time varying periodics -----------
-     cdef double zm    = zmos + zns * t;
+     zm    = zmos + zns * t;
      # be sure that the initial call has time set to zero
      if init == 'y':
          zm = zmos;
-     cdef double zf    = zm + 2.0 * zes * sin(zm);
-     cdef double sinzf = sin(zf);
-     cdef double f2    =  0.5 * sinzf * sinzf - 0.25;
-     cdef double f3    = -0.5 * sinzf * cos(zf);
-     cdef double ses   = se2* f2 + se3 * f3;
-     cdef double sis   = si2 * f2 + si3 * f3;
-     cdef double sls   = sl2 * f2 + sl3 * f3 + sl4 * sinzf;
-     cdef double sghs  = sgh2 * f2 + sgh3 * f3 + sgh4 * sinzf;
-     cdef double shs   = sh2 * f2 + sh3 * f3;
+     zf    = zm + 2.0 * zes * sin(zm);
+     sinzf = sin(zf);
+     f2    =  0.5 * sinzf * sinzf - 0.25;
+     f3    = -0.5 * sinzf * cos(zf);
+     ses   = se2* f2 + se3 * f3;
+     sis   = si2 * f2 + si3 * f3;
+     sls   = sl2 * f2 + sl3 * f3 + sl4 * sinzf;
+     sghs  = sgh2 * f2 + sgh3 * f3 + sgh4 * sinzf;
+     shs   = sh2 * f2 + sh3 * f3;
      zm    = zmol + znl * t;
      if init == 'y':
          zm = zmol;
@@ -213,16 +220,16 @@ cpdef _dpper(satrec, double inclo, char init, double ep, double inclp, double no
      sinzf = sin(zf);
      f2    =  0.5 * sinzf * sinzf - 0.25;
      f3    = -0.5 * sinzf * cos(zf);
-     cdef double sel   = ee2 * f2 + e3 * f3;
-     cdef double sil   = xi2 * f2 + xi3 * f3;
-     cdef double sll   = xl2 * f2 + xl3 * f3 + xl4 * sinzf;
-     cdef double sghl  = xgh2 * f2 + xgh3 * f3 + xgh4 * sinzf;
-     cdef double shll  = xh2 * f2 + xh3 * f3;
-     cdef double pe    = ses + sel;
-     cdef double pinc  = sis + sil;
-     cdef double pl    = sls + sll;
-     cdef double pgh   = sghs + sghl;
-     cdef double ph    = shs + shll;
+     sel   = ee2 * f2 + e3 * f3;
+     sil   = xi2 * f2 + xi3 * f3;
+     sll   = xl2 * f2 + xl3 * f3 + xl4 * sinzf;
+     sghl  = xgh2 * f2 + xgh3 * f3 + xgh4 * sinzf;
+     shll  = xh2 * f2 + xh3 * f3;
+     pe    = ses + sel;
+     pinc  = sis + sil;
+     pl    = sls + sll;
+     pgh   = sghs + sghl;
+     ph    = shs + shll;
 
      if init == 'n':
 
@@ -360,40 +367,48 @@ cpdef _dpper(satrec, double inclo, char init, double ep, double inclp, double no
 """
 
 cpdef _dscom(
-       epoch,  double ep,     argpp,   tc,     inclp,
-       nodep,  double np,
-       e3,     ee2,
-       peo,    pgho,  pho,
-       pinco, plo, se2,   se3,
-       sgh2,  sgh3,  sgh4,   sh2,   sh3,
-       si2,   si3,   sl2,    sl3,   sl4,
-       xgh2,  xgh3,   xgh4,  xh2,
-       xh3,   xi2,   xi3,    xl2,   xl3,
-       xl4,   zmol,  zmos,
+       double epoch, double ep,     double argpp,  double tc,    double inclp,
+       double nodep, double np,
+       double e3,    double ee2,
+       double peo,   double pgho,   double pho,
+       double pinco, double plo,    double se2,    double se3,
+       double sgh2,  double sgh3,   double sgh4,   double sh2,   double sh3,
+       double si2,   double si3,    double sl2,    double sl3,   double sl4,
+       double xgh2,  double xgh3,   double xgh4,   double xh2,
+       double xh3,   double xi2,    double xi3,    double xl2,   double xl3,
+       double xl4,   double zmol,   double zmos,
      ):
 
+     cdef double zes, zel, c1ss, c1l, zsinis, zcosis, zcosgs, zsings, nm, em
+     cdef double snodm, cnodm, sinomm, cosomm, sinim, cosim, emsq, betasq, rtemsq
+     cdef double day, xnodce, stem, ctem, gam, xnoi, zcosil, zsinhl, zsinil, zx, zy
+     cdef double z1, z2, z3, z11, z12, z13, z21, z22, z23, z31, z32, z33
+     cdef double x1, x2, x3, x4, x5, x6, x7, x8
+     cdef double s1, s2, s3, s4, s5, s6, s7, s8
+     cdef double a1, a2, a3, a4, a5, a6, a7, a8, a9, a10
+
      #  -------------------------- constants -------------------------
-     cdef double zes     =  0.01675;
-     cdef double zel     =  0.05490;
-     cdef double c1ss    =  2.9864797e-6;
-     cdef double c1l     =  4.7968065e-7;
-     cdef double zsinis  =  0.39785416;
-     cdef double zcosis  =  0.91744867;
-     cdef double zcosgs  =  0.1945905;
-     cdef double zsings  = -0.98088458;
+     zes     =  0.01675;
+     zel     =  0.05490;
+     c1ss    =  2.9864797e-6;
+     c1l     =  4.7968065e-7;
+     zsinis  =  0.39785416;
+     zcosis  =  0.91744867;
+     zcosgs  =  0.1945905;
+     zsings  = -0.98088458;
 
      #  --------------------- local variables ------------------------
-     cdef double nm     = np;
-     cdef double em     = ep;
-     cdef double snodm  = sin(nodep);
-     cdef double cnodm  = cos(nodep);
-     cdef double sinomm = sin(argpp);
-     cdef double cosomm = cos(argpp);
-     cdef double sinim  = sin(inclp);
-     cdef double cosim  = cos(inclp);
-     cdef double emsq   = em * em;
-     cdef double betasq = 1.0 - emsq;
-     cdef double rtemsq = sqrt(betasq);
+     nm     = np;
+     em     = ep;
+     snodm  = sin(nodep);
+     cnodm  = cos(nodep);
+     sinomm = sin(argpp);
+     cosomm = cos(argpp);
+     sinim  = sin(inclp);
+     cosim  = cos(inclp);
+     emsq   = em * em;
+     betasq = 1.0 - emsq;
+     rtemsq = sqrt(betasq);
 
      #  ----------------- initialize lunar solar terms ---------------
      peo    = 0.0;
@@ -647,8 +662,8 @@ cpdef _dsinit(
        double mo,     double mdot,   double no,      double nodeo,  double nodedot,
        double xpidot, double z1,     double z3,      double z11,    double z13,
        double z21,    double z23,    double z31,     double z33,    double ecco,
-       double eccsq,  double em,    double argpm,  double inclm, double mm,
-       double nm,    double nodem,
+       double eccsq,  double em,     double argpm,   double inclm,  double mm,
+       double nm,     double nodem,
        int irez,
        double atime, double d2201, double d2211,  double d3210, double d3222,
        double d4410, double d4422, double d5220,  double d5232, double d5421,
@@ -657,20 +672,24 @@ cpdef _dsinit(
        double xfact, double xlamo, double xli,    double xni,
      ):
 
-     cdef double q22    = 1.7891679e-6;
-     cdef double q31    = 2.1460748e-6;
-     cdef double q33    = 2.2123015e-7;
-     cdef double root22 = 1.7891679e-6;
-     cdef double root44 = 7.3636953e-9;
-     cdef double root54 = 2.1765803e-9;
-     cdef double rptim  = 4.37526908801129966e-3; # equates to 7.29211514668855e-5 rad/sec
-     cdef double root32 = 3.7393792e-7;
-     cdef double root52 = 1.1428639e-7;
-     cdef double znl    = 1.5835218e-4;
-     cdef double zns    = 1.19459e-5;
+     cdef double q22, q31, q33, root22, root44, root54, rptim, root32, root52
+     cdef double sgs, ses, sis, sls, sghs, shs, znl, zns, xke, aonv, ainv2, temp1
+
+
+     q22    = 1.7891679e-6;
+     q31    = 2.1460748e-6;
+     q33    = 2.2123015e-7;
+     root22 = 1.7891679e-6;
+     root44 = 7.3636953e-9;
+     root54 = 2.1765803e-9;
+     rptim  = 4.37526908801129966e-3; # equates to 7.29211514668855e-5 rad/sec
+     root32 = 3.7393792e-7;
+     root52 = 1.1428639e-7;
+     znl    = 1.5835218e-4;
+     zns    = 1.19459e-5;
 
      #  sgp4fix identify constants and allow alternate values
-     cdef double xke = whichconst.xke
+     xke = whichconst.xke
 
      #  -------------------- deep space initialization ------------
      irez = 0;
@@ -680,17 +699,17 @@ cpdef _dsinit(
          irez = 2;
 
      #  ------------------------ do solar terms -------------------
-     cdef double ses  =  ss1 * zns * ss5;
-     cdef double sis  =  ss2 * zns * (sz11 + sz13);
-     cdef double sls  = -zns * ss3 * (sz1 + sz3 - 14.0 - 6.0 * emsq);
-     cdef double sghs =  ss4 * zns * (sz31 + sz33 - 6.0);
-     cdef double shs  = -zns * ss2 * (sz21 + sz23);
+     ses  =  ss1 * zns * ss5;
+     sis  =  ss2 * zns * (sz11 + sz13);
+     sls  = -zns * ss3 * (sz1 + sz3 - 14.0 - 6.0 * emsq);
+     sghs =  ss4 * zns * (sz31 + sz33 - 6.0);
+     shs  = -zns * ss2 * (sz21 + sz23);
      #  sgp4fix for 180 deg incl
      if inclm < 5.2359877e-2 or inclm > pi - 5.2359877e-2:
        shs = 0.0;
      if sinim != 0.0:
        shs = shs / sinim;
-     cdef double sgs  = sghs - cosim * shs;
+     sgs  = sghs - cosim * shs;
 
      #  ------------------------- do lunar terms ------------------
      dedt = ses + s1 * znl * s5;
@@ -729,7 +748,6 @@ cpdef _dsinit(
      """
 
      #  -------------- initialize the resonance terms -------------
-     cdef double aonv, ainv2, temp1
      if irez != 0:
 
          aonv = pow(nm / xke, x2o3);
@@ -941,6 +959,10 @@ cpdef _dspace(
        double mm,    double xni,   double nodem,  double nm,
        ):
 
+     cdef double fasx2, fasx4, fasx6, g22, g32, g44, g52, g54, rptim, ft
+     cdef double stepp, stepn, step2, dndt, theta, xndt, xldot, xnddt
+
+
      fasx2 = 0.13130908;
      fasx4 = 2.8843198;
      fasx6 = 0.37448087;
@@ -1121,43 +1143,47 @@ cpdef _dspace(
 """
 
 cpdef _initl(
-       satn,      whichconst,
+       int satn,      whichconst,
        double ecco,   double epoch,  double inclo,   double no,
        char method,
        int afspc_mode,
        ):
 
+	 # Make Cython happy
+     cdef double tumin, mu, radiusearthkm, xke, j2, j3, j4, j3oj2
+     cdef double eccsq, omeosq, rteosq, cosio, cosio2, ak, d1, del_, adel, fk5r, c1p2p, gsto
+     cdef double ao, sinio, po, con42, con41, ainv, posq, rp, ts70, ds70, tfrac, c1, thgr70
+
      # sgp4fix use old way of finding gst
 
      #  ----------------------- earth constants ----------------------
      #  sgp4fix identify constants and allow alternate values
-     cdef double tumin, mu, radiusearthkm, xke, j2, j3, j4, j3oj2
      tumin, mu, radiusearthkm, xke, j2, j3, j4, j3oj2 = whichconst
 
      #  ------------- calculate auxillary epoch quantities ----------
-     cdef double eccsq  = ecco * ecco;
-     cdef double omeosq = 1.0 - eccsq;
-     cdef double rteosq = sqrt(omeosq);
-     cdef double cosio  = cos(inclo);
-     cdef double cosio2 = cosio * cosio;
+     eccsq  = ecco * ecco;
+     omeosq = 1.0 - eccsq;
+     rteosq = sqrt(omeosq);
+     cosio  = cos(inclo);
+     cosio2 = cosio * cosio;
 
      #  ------------------ un-kozai the mean motion -----------------
-     cdef double ak    = pow(xke / no, x2o3);
-     cdef double d1    = 0.75 * j2 * (3.0 * cosio2 - 1.0) / (rteosq * omeosq);
-     cdef double del_  = d1 / (ak * ak);
-     cdef double adel  = ak * (1.0 - del_ * del_ - del_ *
+     ak    = pow(xke / no, x2o3);
+     d1    = 0.75 * j2 * (3.0 * cosio2 - 1.0) / (rteosq * omeosq);
+     del_  = d1 / (ak * ak);
+     adel  = ak * (1.0 - del_ * del_ - del_ *
              (1.0 / 3.0 + 134.0 * del_ * del_ / 81.0));
      del_  = d1/(adel * adel);
      no    = no / (1.0 + del_);
 
-     cdef double ao    = pow(xke / no, x2o3);
-     cdef double sinio = sin(inclo);
-     cdef double po    = ao * omeosq;
-     cdef double con42 = 1.0 - 5.0 * cosio2;
-     cdef double con41 = -con42-cosio2-cosio2;
-     cdef double ainv  = 1.0 / ao;
-     cdef double posq  = po * po;
-     cdef double rp    = ao * (1.0 - ecco);
+     ao    = pow(xke / no, x2o3);
+     sinio = sin(inclo);
+     po    = ao * omeosq;
+     con42 = 1.0 - 5.0 * cosio2;
+     con41 = -con42-cosio2-cosio2;
+     ainv  = 1.0 / ao;
+     posq  = po * po;
+     rp    = ao * (1.0 - ecco);
      method = 'n';
 
      #  sgp4fix modern approach to finding sidereal time
@@ -1643,7 +1669,17 @@ def sgp4init(
   ----------------------------------------------------------------------------*/
 """
 
-def sgp4(satrec, tsince, whichconst=None):
+def sgp4(satrec, double tsince, whichconst=None):
+	 # Make cython happy
+     cdef double tumin, mu, radiusearthkm, xke, j2, j3, j4, j3oj2
+     cdef double delomg, delmtemp, delm, t2, t3, t4, am, ep, xl, mp
+     cdef double coseo1, sineo1, ecose, esine, sinim, cosim, sinip, cosip,
+     cdef double xincp, argpp, xlm, mvt, rvdot, mrt, axnl, aynl
+     cdef double nodem, nodep, nodedf
+     cdef double rl, rdotl, rvdotl, betal, sinu, su, sin2u, cos2u, ktr
+     cdef double _mr, ux, uy, uz, vx, vy, vz, vkmpersec, el2argpdf, pl
+     cdef double xmdf, atime, em, argpm, inclmxli, mm, xni, dndt, nm
+     cdef double tempa, tempe, templ, temp, temp1, temp4, tem5
 
      mrt = 0.0
      if whichconst is None:
@@ -1655,11 +1691,10 @@ def sgp4(satrec, tsince, whichconst=None):
      // the old check used 1.0 + cos(pi-1.0e-9), but then compared it to
      // 1.5 e-12, so the threshold was changed to 1.5e-12 for consistency
      """
-     cdef double temp4 =   1.5e-12;
+     temp4 =   1.5e-12;
      #  sgp4fix identify constants and allow alternate values
-     cdef double tumin, mu, radiusearthkm, xke, j2, j3, j4, j3oj2
      tumin, mu, radiusearthkm, xke, j2, j3, j4, j3oj2 = whichconst
-     cdef double vkmpersec     = radiusearthkm * xke/60.0;
+     vkmpersec     = radiusearthkm * xke/60.0;
 
      #  --------------------- clear sgp4 error flag -----------------
      satrec.t     = tsince;
@@ -1667,24 +1702,16 @@ def sgp4(satrec, tsince, whichconst=None):
      satrec.error_message = None
 
      #  ------- update for secular gravity and atmospheric drag -----
-     cdef double xmdf    = satrec.mo + satrec.mdot * satrec.t;
-     cdef double argpdf  = satrec.argpo + satrec.argpdot * satrec.t;
-     cdef double nodedf  = satrec.nodeo + satrec.nodedot * satrec.t;
-     cdef double argpm   = argpdf;
-     cdef double mm      = xmdf;
-     cdef double t2      = satrec.t * satrec.t;
-     cdef double nodem   = nodedf + satrec.nodecf * t2;
-     cdef double tempa   = 1.0 - satrec.cc1 * satrec.t;
-     cdef double tempe   = satrec.bstar * satrec.cc4 * satrec.t;
-     cdef double templ   = satrec.t2cof * t2;
-
-	 # Make cython happy
-     cdef double delomg, delmtemp, delm, temp, t3, t4, am, ep, xl, mp
-     cdef double sinim, cosim, sinip, cosip, xincp, argpp, xlm, nodep
-     cdef double ecose, esine, el2, pl, coseo1, sineo1, axnl, aynl, tem5
-     cdef double rl, rdotl, rvdotl, betal, sinu, su, sin2u, cos2u, ktr
-     cdef double mvt, rvdot, temp1
-     cdef double _mr, ux, uy, uz, vx, vy, vz
+     xmdf    = satrec.mo + satrec.mdot * satrec.t;
+     argpdf  = satrec.argpo + satrec.argpdot * satrec.t;
+     nodedf  = satrec.nodeo + satrec.nodedot * satrec.t;
+     argpm   = argpdf;
+     mm      = xmdf;
+     t2      = satrec.t * satrec.t;
+     nodem   = nodedf + satrec.nodecf * t2;
+     tempa   = 1.0 - satrec.cc1 * satrec.t;
+     tempe   = satrec.bstar * satrec.cc4 * satrec.t;
+     templ   = satrec.t2cof * t2;
 
      if satrec.isimp != 1:
 
@@ -1706,9 +1733,9 @@ def sgp4(satrec, tsince, whichconst=None):
          templ  = templ + satrec.t3cof * t3 + t4 * (satrec.t4cof +
                           satrec.t * satrec.t5cof);
 
-     cdef double nm    = satrec.no;
-     cdef double em    = satrec.ecco;
-     cdef double inclm = satrec.inclo;
+     nm    = satrec.no;
+     em    = satrec.ecco;
+     inclm = satrec.inclo;
      if satrec.method == 'd':
 
          tc = satrec.t;
